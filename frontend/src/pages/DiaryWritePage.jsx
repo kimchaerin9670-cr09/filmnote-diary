@@ -75,26 +75,27 @@ export default function DiaryWritePage() {
     e.target.value = "";
   };
 
-  function getBaseTime() {
-    const now = new Date();
-    const hours = now.getHours();
-    let baseHour = hours;
+  // 발표 기준 시각(날짜+시간)을 함께 계산
+  // 날짜와 시간을 따로 계산하면 자정 근처에서 날짜가 안 맞는 문제가 생겨서 하나로 합침
+  function getBaseDateTime(date) {
+    const target = new Date(date); // 원본 날짜 객체를 건드리지 않기 위해 복사
+    const minute = target.getMinutes();
 
-    // 3시간 단위로 내림
-    baseHour = Math.floor(baseHour / 3) * 3;
-    // 30분 고정
-    const baseTimeStr = baseHour.toString().padStart(2, "0") + "30";
+    // 초단기예보는 매시간 30분에 발표되고, 발표 후 약 45분 뒤부터 조회 가능
+    // 45분이 안 지났으면 아직 최신 발표가 안 된 거라 이전 시간 걸로 요청
+    if (minute < 45) {
+      target.setHours(target.getHours() - 1); // hour가 -1이 되면 Date가 알아서 전날 23시로 넘겨줌 (자정 케이스 자동 처리)
+    }
 
-    // console.log(baseTimeStr);
+    const baseDate = target.toISOString().slice(0, 10).replace(/-/g, ""); // 날짜 (yyyyMMdd)
+    const baseTime = target.getHours().toString().padStart(2, "0") + "30"; // 시간 (HH30)
 
-    return baseTimeStr;
+    return { baseDate, baseTime };
   }
 
   // 위치, 날짜, 시간 정보 날씨 API에 보내서 날씨 정보 가져오기
   useEffect(() => {
-    const yyyyMMdd = todayDate.toISOString().slice(0, 10).replace(/-/g, ""); // 날짜
-    const baseTime = getBaseTime(); // 시간
-    // const baseTime = "1500";
+    const { baseDate, baseTime } = getBaseDateTime(todayDate); // 날짜 + 시간 같이 계산
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -104,8 +105,7 @@ export default function DiaryWritePage() {
           // const nx = 38.0684; // 샘플(강원도 인제)
           // const ny = 128.1707; // 샘플(강원도 인제)
           const { x, y } = dfs_xy_conv(nx, ny);
-          // console.log(dateStr);
-          fetchWeather(yyyyMMdd, baseTime, x, y).then(setWeather);
+          fetchWeather(baseDate, baseTime, x, y).then(setWeather);
         },
         (error) => {
           console.error("위치 정보 에러:", error);
