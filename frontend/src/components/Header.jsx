@@ -1,6 +1,7 @@
 // Header.jsx(헤더부분)
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useSaveHandler } from "../contexts/SaveContext";
 import axios from "axios";
 
@@ -8,6 +9,13 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { saveHandler } = useSaveHandler(); // 저장 함수 가져오기
+
+  const [showSettings, setShowSettings] = useState(false); // 설정 드롭다운 열림/닫힘
+
+  // 로그인 상태 판단 (실제 로그인 토큰 또는 익명 세션)
+  const hasToken = !!sessionStorage.getItem("userToken");
+  const hasAnonymous = !!localStorage.getItem("anonymousNickname");
+  const isLoggedIn = hasToken || hasAnonymous;
 
   const showSave =
     location.pathname.startsWith("/diary/write") ||
@@ -36,7 +44,32 @@ export default function Header() {
     }
   };
 
+  // 로그아웃: 실제 로그인 사용자는 토큰 제거, 익명 사용자는 데이터 그대로 두고 화면만 이동
+  const handleLogout = () => {
+    if (hasToken) {
+      sessionStorage.removeItem("userToken");
+    }
+    setShowSettings(false);
+    navigate("/login");
+  };
+
   // console.log(location.pathname);
+
+  // 설정 버튼 + 드롭다운 (여러 분기에서 재사용)
+  const settingsButton = (
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setShowSettings((prev) => !prev)}>설정</button>
+      {showSettings && (
+        <div>
+          {isLoggedIn ? (
+            <button onClick={handleLogout}>로그아웃</button>
+          ) : (
+            <span>로그인이 필요합니다</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <header>
@@ -49,7 +82,7 @@ export default function Header() {
             <button>
               <Link to={"/diary/write"}>추가</Link>
             </button>
-            <button>설정</button>
+            {settingsButton}
           </div>
         ) : location.pathname.startsWith("/diary/read") ? (
           <div>
@@ -67,9 +100,7 @@ export default function Header() {
             </button>
           </div>
         ) : (
-          <div>
-            <button>설정</button>
-          </div>
+          <div>{settingsButton}</div>
         )}
       </div>
     </header>
