@@ -1,0 +1,28 @@
+:root {
+  --color-bg: #FDFBFF;
+  --color-primary: #D4689A;
+  --color-secondary: #9B7AEA;
+  --color-border: #EDE8F2;
+  --color-text: #1F1635;
+  --color-text-muted: #B0A0C4;
+  --color-text-light: #C0B0D4;
+
+  --gradient-primary: linear-gradient(135deg, #D4689A 0%, #9B7AEA 100%);
+
+  --font-en: 'Pacifico', cursive;   /* 영어 제목 */
+  --font-kr: 'Jua', sans-serif;     /* 한글 로고/제목 */
+  --font-kr-body: 'Dongle', sans-serif; /* 한글 본문 */
+}
+
+body {
+  font-family: var(--font-kr-body);
+  font-size: 20px;
+  color: var(--color-text);
+  margin: 0;
+  background: var(--color-bg);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-kr-body);
+}

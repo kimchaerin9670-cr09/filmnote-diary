@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSaveHandler } from "../contexts/SaveContext";
 import axios from "axios";
+import styles from "./Header.module.css";
 
 export default function Header() {
   const location = useLocation();
@@ -57,10 +58,12 @@ export default function Header() {
 
   // 설정 버튼 + 드롭다운 (여러 분기에서 재사용)
   const settingsButton = (
-    <div style={{ position: "relative" }}>
-      <button onClick={() => setShowSettings((prev) => !prev)}>설정</button>
+    <div className={styles.settingsWrapper}>
+      <button className={styles.circleBtn} onClick={() => setShowSettings((prev) => !prev)}>
+        설정
+      </button>
       {showSettings && (
-        <div>
+        <div className={styles.settingsMenu}>
           {isLoggedIn ? (
             <button onClick={handleLogout}>로그아웃</button>
           ) : (
@@ -71,36 +74,41 @@ export default function Header() {
     </div>
   );
 
+  const hideHeaderPaths = ["/login", "/signup", "/anonymous"];
+  if (hideHeaderPaths.includes(location.pathname)) {
+    return null;
+  }
+
   return (
-    <header>
-      <div>
-        <h1>로그</h1>
-      </div>
-      <div>
+    <header className={styles.header}>
+      <span className={styles.logo}>📸 필름노트</span>
+      <div className={styles.buttonGroup}>
         {location.pathname === "/" ? (
-          <div>
-            <button>
-              <Link to={"/diary/write"}>추가</Link>
+          <>
+            <button className={`${styles.circleBtn} ${styles.primary}`}>
+              <Link to={"/diary/write"} style={{ color: "inherit", textDecoration: "none" }}>
+                + 추가
+              </Link>
             </button>
             {settingsButton}
-          </div>
+          </>
         ) : location.pathname.startsWith("/diary/read") ? (
-          <div>
-            <button onClick={handleUpdate}>수정</button>
-            <button onClick={handleDelete}>삭제</button>
-            <button>
-              <Link to={"/"}>닫기</Link>
+          <>
+            <button className={styles.circleBtn} onClick={handleUpdate}>수정</button>
+            <button className={styles.circleBtn} onClick={handleDelete}>삭제</button>
+            <button className={styles.circleBtn}>
+              <Link to={"/"} style={{ color: "inherit", textDecoration: "none" }}>닫기</Link>
             </button>
-          </div>
+          </>
         ) : showSave ? (
-          <div>
-            <button onClick={saveHandler}>저장</button>
-            <button>
-              <Link to={"/"}>닫기</Link>
+          <>
+            <button className={`${styles.circleBtn} ${styles.primary}`} onClick={saveHandler}>저장</button>
+            <button className={styles.circleBtn}>
+              <Link to={"/"} style={{ color: "inherit", textDecoration: "none" }}>닫기</Link>
             </button>
-          </div>
+          </>
         ) : (
-          <div>{settingsButton}</div>
+          settingsButton
         )}
       </div>
     </header>

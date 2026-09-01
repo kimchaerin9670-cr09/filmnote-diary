@@ -1,0 +1,164 @@
+.page {
+  min-height: calc(100vh - 65px);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.blobTop {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #F9D4E6 0%, transparent 70%);
+  filter: blur(60px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.blobBottom {
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #E4D8FF 0%, transparent 70%);
+  filter: blur(60px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.inner {
+  width: 100%;
+  max-width: 360px;
+}
+
+.titleBlock {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: var(--font-en);
+  font-size: 44px;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-kr-body);
+  font-size: 22px;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+}
+
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 32px rgba(155, 122, 234, 0.1);
+}
+
+.fieldLabel {
+  font-size: 18px;
+  color: var(--color-primary); /* bold 빼고 색으로 강조 */
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1.5px solid var(--color-border);
+  background: transparent;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  font-family: var(--font-kr-body);
+  font-size: 18px; /* 22px → 18px */
+  color: var(--color-text);
+}
+
+.input:focus {
+  outline: none;
+  border-bottom-color: var(--color-primary);
+}
+
+.input:focus::placeholder {
+  opacity: 0;
+}
+
+.input::placeholder {
+  color: var(--color-text-light);
+  font-size: 15px;
+  transition: opacity 0.15s;
+}
+
+.primaryBtn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px;
+  background: var(--gradient-primary);
+  color: white;
+  font-family: var(--font-kr);
+  font-size: 16px;
+}
+
+.linkRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-size: 17px;
+  color: var(--color-text-light);
+}
+
+.linkRow a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.signupLink {
+  color: var(--color-primary) !important;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.divider hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.divider span {
+  font-size: 17px;
+  color: var(--color-text-light);
+}
+
+.outlineBtn {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 14px;
+  background: #9B7AEA; /* 진한 보라 */
+  color: white;
+  font-family: var(--font-kr-body);
+  font-size: 22px;
+}

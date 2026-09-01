@@ -1,0 +1,61 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.logo {
+  font-family: var(--font-kr);
+  font-size: 20px;
+  color: var(--color-primary);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.circleBtn {
+  border: 1.5px solid var(--color-border);
+  color: #8B7AA0;
+  background: white;
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-family: var(--font-kr-body);
+  font-size: 16px;
+}
+
+.circleBtn.primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+}
+
+.settingsWrapper {
+  position: relative;
+}
+
+.settingsMenu {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(155, 122, 234, 0.15);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.settingsMenu button {
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-family: var(--font-kr-body);
+  font-size: 16px;
+}

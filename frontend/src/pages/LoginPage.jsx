@@ -3,6 +3,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -49,31 +50,57 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          value={userId}
-          placeholder="아이디"
-          onChange={(e) => setUserId(e.target.value)}
-        />
-        <input
-          type="password"
-          value={password}
-          placeholder="비밀번호"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">로그인</button>
-      </form>
-      <div>
-        <Link to={"/find-account"}>아이디 • 비밀번호 찾기</Link>
-        <Link to={"/signup"}>회원가입</Link>
+    <div className={styles.page}>
+      <div className={styles.blobTop} />
+      <div className={styles.blobBottom} />
+
+      <div className={styles.content}>
+        <div className={styles.inner}>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>Login</h1>
+            <p className={styles.subtitle}>오늘의 기억을 담아봐요</p>
+          </div>
+
+          <div className={styles.card}>
+            <form onSubmit={handleLogin}>
+              <div>
+                <p className={styles.fieldLabel}>아이디</p>
+                <input
+                  className={styles.input}
+                  type="text"
+                  value={userId}
+                  placeholder="아이디를 입력하세요"
+                  onChange={(e) => setUserId(e.target.value)}
+                />
+              </div>
+              <div>
+                <p className={styles.fieldLabel}>비밀번호</p>
+                <input
+                  className={styles.input}
+                  type="password"
+                  value={password}
+                  placeholder="비밀번호를 입력하세요"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <button className={styles.primaryBtn} type="submit">로그인</button>
+            </form>
+
+            <div className={styles.linkRow}>
+              <Link to={"/find-account"}>아이디 · 비밀번호 찾기</Link>
+              <Link className={styles.signupLink} to={"/signup"}>회원가입</Link>
+            </div>
+          </div>
+
+          <div className={styles.divider}>
+            <hr /><span>또는</span><hr />
+          </div>
+
+          <button className={styles.outlineBtn} onClick={handleAnonymous}>
+            익명으로 시작하기
+          </button>
+        </div>
       </div>
-      <br />
-      <hr />
-      <br />
-      <button onClick={handleAnonymous}>익명으로 시작하기</button>
     </div>
   );
 }

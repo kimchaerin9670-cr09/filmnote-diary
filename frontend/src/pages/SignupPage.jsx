@@ -1,8 +1,9 @@
 // SignupPage.jsx(회원가입 페이지)
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
+import styles from "./SignupPage.module.css";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -97,55 +98,93 @@ export default function SignupPage() {
   };
 
   return (
-    <div>
-      <h1>Signup</h1>
-      <form onSubmit={handleSignup}>
-        <input
-          name="nickname"
-          placeholder="닉네임"
-          value={formData.nickname}
-          onChange={handleChange}
-          disabled={isIdChecked}
-        />
+    <div className={styles.page}>
+      <div className={styles.blobTop} />
+      <div className={styles.blobBottom} />
 
-        <div>
-          <input
-            name="userId"
-            placeholder="아이디"
-            value={formData.userId}
-            onChange={handleChange}
-            disabled={isIdChecked}
-          />
-          <button type="button" onClick={checkDuplicate}>
-            중복 확인
-          </button>
+      <div className={styles.content}>
+        <div className={styles.inner}>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>Sign up</h1>
+            <p className={styles.subtitle}>나만의 일기를 시작해요</p>
+          </div>
+
+          <div className={styles.card}>
+            <form onSubmit={handleSignup}>
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>닉네임</p>
+                <input
+                  className={styles.input}
+                  name="nickname"
+                  placeholder="닉네임"
+                  value={formData.nickname}
+                  onChange={handleChange}
+                  disabled={isIdChecked}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>아이디</p>
+                <div className={styles.idRow}>
+                  <input
+                    className={styles.input}
+                    name="userId"
+                    placeholder="아이디"
+                    value={formData.userId}
+                    onChange={handleChange}
+                    disabled={isIdChecked}
+                  />
+                  <button className={styles.checkBtn} type="button" onClick={checkDuplicate}>
+                    중복 확인
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>비밀번호</p>
+                <input
+                  className={styles.input}
+                  name="password"
+                  type="password"
+                  placeholder="비밀번호"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>비밀번호 확인</p>
+                <input
+                  className={styles.input}
+                  name="passwordConfirm"
+                  type="password"
+                  placeholder="비밀번호 확인"
+                  value={formData.passwordConfirm}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>이메일</p>
+                <input
+                  className={styles.input}
+                  name="email"
+                  placeholder="이메일"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <button className={styles.primaryBtn} type="submit">회원가입</button>
+            </form>
+          </div>
+
+          <p className={styles.bottomText}>
+            이미 계정이 있으신가요?{" "}
+            <Link className={styles.loginLink} to={"/login"}>로그인</Link>
+          </p>
         </div>
-
-        <input
-          name="password"
-          type="password"
-          placeholder="비밀번호"
-          value={formData.password}
-          onChange={handleChange}
-        />
-
-        <input
-          name="passwordConfirm"
-          type="password"
-          placeholder="비밀번호 확인"
-          value={formData.passwordConfirm}
-          onChange={handleChange}
-        />
-
-        <input
-          name="email"
-          placeholder="이메일"
-          value={formData.email}
-          onChange={handleChange}
-        />
-
-        <button type="submit">회원가입</button>
-      </form>
+      </div>
     </div>
   );
 }
