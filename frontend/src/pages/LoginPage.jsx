@@ -15,7 +15,7 @@ export default function LoginPage() {
     console.log("에러 메시지 변경됨:", error);
   }, [error]);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
@@ -51,7 +51,7 @@ export default function LoginPage() {
   return (
     <div>
       <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLogin}>
         <input
           type="text"
           value={userId}

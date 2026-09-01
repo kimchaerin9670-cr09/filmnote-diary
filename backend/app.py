@@ -8,16 +8,20 @@ import os # 환경 변수를 가져온다 환경 변수는 보안 정보(비밀�
 from datetime import timedelta, datetime
 import json
 import time
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # MySQL 연동 설정
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:9670@localhost:3306/db_name'
+db_password = os.environ.get("DB_PASSWORD")
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://diary_app:{db_password}@localhost:3306/db_name'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # JWT 설정
-app.config["JWT_SECRET_KEY"] = "super-secret-key"  # 실제 배포에선 안전하게 관리!
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # app.py가 있는 폴더 경로
@@ -35,7 +39,7 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True) # 기본키 + 자동 증가
     user_id = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     nickname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False)
 
@@ -62,6 +66,35 @@ with app.app_context():
 def uploaded_file(filename):
     return send_from_directory('uploads', filename)
 
+
+@app.route("/api/signup", methods=["POST"])
+def signup():
+    user_data = request.get_json()
+    user_id = user_data.get("userId")
+    password = user_data.get("password")
+    nickname = user_data.get("nickname")
+    email = user_data.get("email")
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(user_id=user_id, password=hashed_password, nickname=nickname, email=email)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "회원가입 성공!"}), 201
+
+
+@app.route("/api/check-userId", methods=["POST"])
+def check_id():
+    user_data = request.get_json()
+    user_id = user_data.get("userId")
+    
+    # 이미 존재하는 아이디 체크
+    if User.query.filter_by(user_id=user_id).first():
+        return jsonify({"available": False, "error": "이미 사용 중인 아이디입니다."}), 400
+    
+    return jsonify({"available": True})
+
+
 # id와 password가 맞는지 확인 후 맞으면 토큰 발급
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -69,11 +102,11 @@ def login():
     user_id = user_data.get("userId")
     password = user_data.get("password")
 
-    user = User.query.filter_by(user_id=user_id, password=password).first()
+    user = User.query.filter_by(user_id=user_id).first()
 
-    if user:
+    if user and check_password_hash(user.password, password):
         access_token = create_access_token(identity=user_id)
-        return jsonify({"success" : True, "token" : access_token})
+        return jsonify({"success": True, "token": access_token})
     else:
         return jsonify({"success": False, "message": "로그인 실패"}), 401
     
