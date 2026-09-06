@@ -9,8 +9,10 @@
 
 .logo {
   font-family: var(--font-kr);
-  font-size: 20px;
+  font-size: 18px;
   color: var(--color-primary);
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .buttonGroup {

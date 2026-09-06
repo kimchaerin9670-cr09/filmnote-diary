@@ -18,55 +18,56 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <SaveProvider>
-        {" "}
-        {/* 헤더 중복 방지를 위해 */}
-        <Header />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <DiaryListPage />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/anonymous" element={<AnonymousPage />} />
-          <Route path="/find-account" element={<FindAccountPage />} />
-          <Route
-            path="/diary/write"
-            element={
-              <PrivateRoute>
-                <DiaryWritePage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/diary/read/:id" // 동적 파라미터
-            element={
-              <PrivateRoute>
-                <DiaryReadPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/diary/update/:id"
-            element={
-              <PrivateRoute>
-                <DiaryUpdatePage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/diary/delete/:id"
-            element={
-              <PrivateRoute>
-                <DiaryDeletePage />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
+        <div className="appShell">
+          {/* 헤더 중복 방지를 위해 */}
+          <Header />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <DiaryListPage />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/anonymous" element={<AnonymousPage />} />
+            <Route path="/find-account" element={<FindAccountPage />} />
+            <Route
+              path="/diary/write"
+              element={
+                <PrivateRoute>
+                  <DiaryWritePage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/diary/read/:id" // 동적 파라미터
+              element={
+                <PrivateRoute>
+                  <DiaryReadPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/diary/update/:id"
+              element={
+                <PrivateRoute>
+                  <DiaryUpdatePage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/diary/delete/:id"
+              element={
+                <PrivateRoute>
+                  <DiaryDeletePage />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </div>
       </SaveProvider>
     </BrowserRouter>
   );

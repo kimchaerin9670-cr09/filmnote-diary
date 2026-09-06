@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { getDiaries } from "../utils/storage";
+import styles from "./DiaryListPage.module.css";
 
 export default function DiaryListPage() {
   const [nickname, setNickname] = useState("");
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
   const [diaries, setDiaries] = useState([]);
 
@@ -20,6 +22,7 @@ export default function DiaryListPage() {
         });
 
         setNickname(res.data.nickname);
+        setEmail(res.data.email);
       } catch (e) {
         // 로그인 사용자가 아니거나(익명 사용자거나), 서버 요청이 실패하면
         const anonymousNickname = localStorage.getItem("anonymousNickname");
@@ -65,35 +68,56 @@ export default function DiaryListPage() {
   };
 
   return (
-    <div>
-      <div>
-        <div>
-          <img src="/" />
-        </div>
-        <div>
-          <h3>'사진 일기'</h3>
+    <div className={styles.page}>
+      <aside className={styles.sidebar}>
+        <div className={styles.photoCard}>
+          <div className={styles.photoBox}>원하는 사진 첨부</div>
+          <div className={styles.stamp}>
+            <p className={styles.stampText}>' 필름노트 '</p>
+          </div>
         </div>
 
-        <h3>{nickname}님</h3>
-      </div>
+        <div className={styles.nicknameBlock}>
+          <p className={styles.nickname}>{nickname}님</p>
+        </div>
 
-      <div>
+        {email && <p className={styles.handle}>@{email.split("@")[0]}</p>}
+
+        <div className={styles.divider} />
+
+        <div className={styles.countBox}>
+          <span className={styles.countLabel}>일기</span>
+          <span className={styles.countValue}>{diaries ? diaries.length : 0}</span>
+        </div>
+      </aside>
+
+      <div className={styles.feed}>
+        <p className={styles.feedHeader}>
+          <span>나의 일기</span>
+          <span className={styles.feedSub}>총 {diaries ? diaries.length : 0}개</span>
+        </p>
+
         {diaries && diaries.length > 0 ? (
-          <ul>
+          <ul className={styles.entryList}>
             {diaries.map((item) => (
-              <li key={item.id}>
-                <Link to={`/diary/read/${item.id}`}>
-                  <h4>{item.title}</h4>
-                  <p>{item.content}...</p>
-                  <small>{item.created_at}</small>
+              <li key={item.id} className={styles.entryItem}>
+                <Link className={styles.entryLink} to={`/diary/read/${item.id}`}>
+                  <div className={styles.entryThumb} />
+                  <div className={styles.entryBody}>
+                    <div className={styles.entryTop}>
+                      <h4 className={styles.entryTitle}>{item.title}</h4>
+                      <small className={styles.entryDate}>{item.created_at}</small>
+                    </div>
+                    <p className={styles.entryExcerpt}>{item.content}...</p>
+                  </div>
                 </Link>
               </li>
             ))}
           </ul>
         ) : (
-          <div>
-            <button onClick={handleAdd}>+</button>
-            <h3>+버튼을 눌러 일기를 추가할 수 있습니다</h3>
+          <div className={styles.emptyState}>
+            <p className={styles.emptyText}>+버튼을 눌러 일기를 추가할 수 있습니다</p>
+            <button className={styles.addBtn} onClick={handleAdd}>+ 일기 쓰기</button>
           </div>
         )}
       </div>

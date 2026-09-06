@@ -115,13 +115,12 @@ def login():
 @jwt_required() # 토큰 없으면 아예 API를 막음
 def get_userinfo():
     user_id = get_jwt_identity()
-
     user = User.query.filter_by(user_id=user_id).first()
 
     if not user:
         return jsonify({"success" : False,  "message": "유저를 찾을 수 없습니다"}), 404
     
-    return jsonify({"success": True, "nickname": user.nickname})
+    return jsonify({"success": True, "nickname": user.nickname, "email": user.email})
 
 # 전체 일기 정보 가져오기
 @app.route("/api/diaryinfo", methods = ["GET"])

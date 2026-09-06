@@ -81,7 +81,7 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <span className={styles.logo}>📸 필름노트</span>
+      <Link to="/" className={styles.logo}>📸 필름노트</Link>
       <div className={styles.buttonGroup}>
         {location.pathname === "/" ? (
           <>
