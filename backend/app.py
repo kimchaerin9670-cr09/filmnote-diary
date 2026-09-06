@@ -94,7 +94,6 @@ def check_id():
     
     return jsonify({"available": True})
 
-
 # id와 password가 맞는지 확인 후 맞으면 토큰 발급
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -131,15 +130,23 @@ def get_diarylist():
     diaries = Diary.query.filter_by(user_id=user.id).order_by(Diary.id.desc()).all()
 
     if diaries:
-        diary_list = [
-            {
+        diary_list = []
+        for d in diaries:
+            # 사진 경로 중 첫 번째만 썸네일로 사용
+            try:
+                photo_paths = json.loads(d.photo_paths) if d.photo_paths else []
+            except json.JSONDecodeError:
+                photo_paths = []
+
+            diary_list.append({
                 'id': d.id,
                 'title': d.title,
                 'content': d.content[:100],
                 'created_at': d.created_at.strftime('%Y-%m-%d'),
-            }
-            for d in diaries
-        ]
+                'weather': d.weather,
+                'thumbnail': photo_paths[0] if photo_paths else None,
+            })
+
         return jsonify({"success": True, "contents": diary_list})
     else:
         return jsonify({"success": False, "message": "일기가 없습니다."}), 404

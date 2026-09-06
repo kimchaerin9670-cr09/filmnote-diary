@@ -6,6 +6,15 @@ import axios from "axios";
 import { getDiaries } from "../utils/storage";
 import styles from "./DiaryListPage.module.css";
 
+const WEATHER_COLOR = {
+  "맑음": { bg: "#FFF3D6", text: "#8B6000", emoji: "☀️" },
+  "구름 많음": { bg: "#F3E8FF", text: "#9B7AEA", emoji: "⛅" },
+  "흐림": { bg: "#E8F0FF", text: "#3763D6", emoji: "☁️" },
+  "비": { bg: "#E8F0FF", text: "#3763D6", emoji: "🌧️" },
+  "비/눈": { bg: "#E8F0FF", text: "#3763D6", emoji: "🌨️" },
+  "눈": { bg: "#E8FFF9", text: "#00A082", emoji: "❄️" },
+};
+
 export default function DiaryListPage() {
   const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
@@ -102,13 +111,32 @@ export default function DiaryListPage() {
             {diaries.map((item) => (
               <li key={item.id} className={styles.entryItem}>
                 <Link className={styles.entryLink} to={`/diary/read/${item.id}`}>
-                  <div className={styles.entryThumb} />
+                  <div className={styles.entryThumb}>
+                    {item.thumbnail && (
+                      <img
+                        src={`http://localhost:5000${item.thumbnail}`}
+                        alt={item.title}
+                        className={styles.entryThumbImg}
+                      />
+                    )}
+                  </div>
                   <div className={styles.entryBody}>
                     <div className={styles.entryTop}>
                       <h4 className={styles.entryTitle}>{item.title}</h4>
                       <small className={styles.entryDate}>{item.created_at}</small>
                     </div>
                     <p className={styles.entryExcerpt}>{item.content}...</p>
+                    {item.weather && (
+                      <span
+                        className={styles.weatherTag}
+                        style={{
+                          background: WEATHER_COLOR[item.weather]?.bg || "#F3EFFF",
+                          color: WEATHER_COLOR[item.weather]?.text || "#9B7AEA",
+                        }}
+                      >
+                        {WEATHER_COLOR[item.weather]?.emoji} {item.weather}
+                      </span>
+                    )}
                   </div>
                 </Link>
               </li>
