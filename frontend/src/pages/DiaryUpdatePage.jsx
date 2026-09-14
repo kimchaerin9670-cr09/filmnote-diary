@@ -124,7 +124,13 @@ export default function DiaryUpdatePage() {
   // 파일 선택 시 미리보기 URL 생성
   const handleChange = (e) => {
     const files = Array.from(e.target.files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...files]); // 기존 사진에 새 파일 추가
+    const combined = [...selectedFiles, ...files];
+
+    if (combined.length > 5) {
+      alert("사진은 최대 5개까지 첨부할 수 있습니다.");
+    }
+
+    setSelectedFiles(combined.slice(0, 5));
     // 같은 파일 다시 선택 가능하게 input 리셋
     e.target.value = "";
   };
@@ -199,7 +205,7 @@ export default function DiaryUpdatePage() {
               <span className={styles.plusIconLarge}>+</span>
               사진을 추가해주세요
             </button>
-          ) : (
+          ) : selectedFiles.length < 5 ? (
             <button
               type="button"
               className={styles.addPhotoBtn}
@@ -208,7 +214,7 @@ export default function DiaryUpdatePage() {
               <span className={styles.plusIcon}>+</span>
               사진 추가
             </button>
-          )}
+          ) : null}
           <input
             type="file"
             accept="image/*"
