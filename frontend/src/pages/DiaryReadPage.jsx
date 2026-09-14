@@ -3,10 +3,21 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import styles from "./DiaryReadPage.module.css";
+
+const WEATHER_EMOJI = {
+  "맑음": "☀️",
+  "구름 많음": "⛅",
+  "흐림": "☁️",
+  "비": "🌧️",
+  "비/눈": "🌨️",
+  "눈": "❄️",
+};
 
 export default function DiaryReadPage() {
   const { id } = useParams(); // 받아온 id
   const [diary, setDiary] = useState(null);
+  const [activePhoto, setActivePhoto] = useState(0);
 
   useEffect(() => {
     const fetchDiary = async () => {
@@ -25,47 +36,58 @@ export default function DiaryReadPage() {
     fetchDiary();
   }, [id]);
 
+  if (!diary) {
+    return <p className={styles.loading}>로딩중입니다...</p>;
+  }
+
+  const hasPhotos = diary.photo_paths && diary.photo_paths.length > 0;
+
   return (
-    <div>
-      {diary ? (
-        <div>
-          <div>
-            <h2>{diary.title}</h2>
-            <div>
-              <time>
-                <h5>{diary.created_at}</h5>
-              </time>
-              <h5>{diary.weather}</h5>
-            </div>
-            <div>
-              {diary.photo_paths && diary.photo_paths.length > 0 ? (
-                diary.photo_paths.map((path, index) => (
-                  <img
-                    key={index}
-                    src={`http://localhost:5000/${path}`}
-                    alt="일기 사진"
-                    style={{
-                      width: "300px",
-                      height: "300px",
-                      marginRight: "10px",
-                      objectFit: "cover",
-                    }}
-                  />
-                ))
-              ) : (
-                <div>
-                  <h3>등록한 사진이 없습니다.</h3>
-                </div>
-              )}
-            </div>
-          </div>
-          <article>
-            <p>{diary.content}</p>
-          </article>
+    <div className={styles.page}>
+      <div className={styles.photoSide}>
+        <h2 className={styles.title}>{diary.title}</h2>
+
+        <div className={styles.metaRow}>
+          <span className={`${styles.metaTag} ${styles.dateTag}`}>
+            날짜 : {diary.created_at}
+          </span>
+          <span className={`${styles.metaTag} ${styles.weatherTag}`}>
+            날씨 : {WEATHER_EMOJI[diary.weather] || ""} {diary.weather}
+          </span>
         </div>
-      ) : (
-        <p>로딩중입니다...</p>
-      )}
+
+        {hasPhotos ? (
+          <div className={styles.photoBox}>
+            <img
+              className={styles.photoImg}
+              src={`http://localhost:5000/${diary.photo_paths[activePhoto]}`}
+              alt="일기 사진"
+            />
+          </div>
+        ) : (
+          <div className={styles.noPhoto}>등록한 사진이 없습니다.</div>
+        )}
+
+        {hasPhotos && diary.photo_paths.length > 1 && (
+          <div className={styles.photoThumbs}>
+            {diary.photo_paths.map((path, index) => (
+              <img
+                key={index}
+                className={`${styles.photoThumb} ${index === activePhoto ? styles.active : ""
+                  }`}
+                src={`http://localhost:5000/${path}`}
+                alt={`사진 ${index + 1}`}
+                onClick={() => setActivePhoto(index)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className={styles.contentSide}>
+        <div className={styles.notebookLines} />
+        <p className={styles.content}>{diary.content}</p>
+      </div>
     </div>
   );
 }

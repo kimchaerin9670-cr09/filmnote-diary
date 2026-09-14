@@ -49,7 +49,7 @@
 
 .stampText {
   font-family: var(--font-kr);
-  font-size: clamp(20px, 7cqw, 34px); /* photoCard 너비의 8% 기준 */
+  font-size: clamp(20px, 7cqw, 34px);
   color: var(--color-primary);
   letter-spacing: 10px;
   margin: 0;

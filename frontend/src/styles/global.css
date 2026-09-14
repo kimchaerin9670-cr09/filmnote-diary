@@ -32,3 +32,26 @@ button {
   max-width: 1400px;
   margin: 0 auto;
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+* {
+  scrollbar-width: thin; /* 파이어폭스용 */
+  scrollbar-color: var(--color-border) transparent;
+}
