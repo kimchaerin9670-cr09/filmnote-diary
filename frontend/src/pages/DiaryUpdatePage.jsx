@@ -190,14 +190,25 @@ export default function DiaryUpdatePage() {
             </div>
           ))}
 
-          <button
-            type="button"
-            className={styles.addPhotoBtn}
-            onClick={handlePlusClick}
-          >
-            <span className={styles.plusIcon}>+</span>
-            사진 추가
-          </button>
+          {selectedFiles.length === 0 ? (
+            <button
+              type="button"
+              className={styles.addPhotoBtnLarge}
+              onClick={handlePlusClick}
+            >
+              <span className={styles.plusIconLarge}>+</span>
+              사진을 추가해주세요
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.addPhotoBtn}
+              onClick={handlePlusClick}
+            >
+              <span className={styles.plusIcon}>+</span>
+              사진 추가
+            </button>
+          )}
           <input
             type="file"
             accept="image/*"

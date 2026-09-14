@@ -190,10 +190,3 @@
 .textarea::placeholder {
   color: var(--color-text-light);
 }
-
-.loading {
-  padding: 60px;
-  text-align: center;
-  font-size: 18px;
-  color: var(--color-text-muted);
-}

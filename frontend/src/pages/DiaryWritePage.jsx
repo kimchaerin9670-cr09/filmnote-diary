@@ -6,6 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { fetchWeather, dfs_xy_conv } from "../utils/getWeather";
 import { useSaveHandler } from "../contexts/SaveContext";
 import axios from "axios";
+import styles from "./DiaryWritePage.module.css";
+
+const WEATHER_EMOJI = {
+  "맑음": "☀️",
+  "구름 많음": "⛅",
+  "흐림": "☁️",
+  "비": "🌧️",
+  "비/눈": "🌨️",
+  "눈": "❄️",
+};
 
 export default function DiaryWritePage() {
   const fileInputRef = useRef(null); // 파일 input DOM을 가리키는 ref
@@ -149,27 +159,65 @@ export default function DiaryWritePage() {
   }, [handleSubmit]);
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <form className={styles.page} onSubmit={handleSubmit}>
+      <div className={styles.photoSide}>
         <input
+          className={styles.titleInput}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목"
         />
-        <div>
-          <h5>{dateStr}</h5>
-          <h5>{weather}</h5>
+
+        <div className={styles.metaRow}>
+          <span className={`${styles.metaTag} ${styles.dateTag}`}>
+            날짜 : {dateStr}
+          </span>
+          {weather && (
+            <span className={`${styles.metaTag} ${styles.weatherTag}`}>
+              날씨 : {WEATHER_EMOJI[weather] || ""} {weather}
+            </span>
+          )}
         </div>
-        <div>
-          <button
-            type="button"
-            onClick={handlePlusClick}
-            style={{ fontSize: "2rem" }}
-          >
-            +
-          </button>
-          <h3>+버튼을 눌러 사진을 추가할 수 있습니다</h3>
+
+        <div className={styles.photoGrid}>
+          {selectedFiles.map((file, index) => (
+            <div key={index} className={styles.photoItem}>
+              <img
+                className={styles.photoImg}
+                src={previewURLs[index]}
+                alt={`preview-${index}`}
+              />
+              <button
+                type="button"
+                className={styles.removeBtn}
+                onClick={() => removePhoto(index)}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          {selectedFiles.length === 0 ? (
+            <button
+              type="button"
+              className={styles.addPhotoBtnLarge}
+              onClick={handlePlusClick}
+            >
+              <span className={styles.plusIconLarge}>+</span>
+              사진을 추가해주세요
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.addPhotoBtn}
+              onClick={handlePlusClick}
+            >
+              <span className={styles.plusIcon}>+</span>
+              사진 추가
+            </button>
+          )}
+
           <input
             type="file"
             accept="image/*"
@@ -178,45 +226,18 @@ export default function DiaryWritePage() {
             ref={fileInputRef} // ref로 연결
             style={{ display: "none" }}
           />
-          {selectedFiles.length > 0 && (
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-              {selectedFiles.map((file, index) => (
-                <div key={index} style={{ position: "relative" }}>
-                  <img
-                    src={previewURLs[index]}
-                    alt={`preview-${index}`}
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePhoto(index)}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                    }}
-                  >
-                    x
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
-        <div>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="일기"
-            rows="10"
-            cols="50"
-          ></textarea>
-        </div>
-      </form>
-    </div>
+      </div>
+
+      <div className={styles.contentSide}>
+        <div className={styles.notebookLines} />
+        <textarea
+          className={styles.textarea}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="일기를 입력하세요"
+        />
+      </div>
+    </form>
   );
 }
