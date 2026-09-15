@@ -85,27 +85,21 @@ export default function Header() {
       <div className={styles.buttonGroup}>
         {location.pathname === "/" ? (
           <>
-            <button className={`${styles.circleBtn} ${styles.primary}`}>
-              <Link to={"/diary/write"} style={{ color: "inherit", textDecoration: "none" }}>
-                + 추가
-              </Link>
-            </button>
+            <Link to={"/diary/write"} className={`${styles.circleBtn} ${styles.primary}`}>
+              + 추가
+            </Link>
             {settingsButton}
           </>
         ) : location.pathname.startsWith("/diary/read") ? (
           <>
             <button className={styles.circleBtn} onClick={handleUpdate}>수정</button>
             <button className={styles.circleBtn} onClick={handleDelete}>삭제</button>
-            <button className={styles.circleBtn}>
-              <Link to={"/"} style={{ color: "inherit", textDecoration: "none" }}>닫기</Link>
-            </button>
+            <Link to={"/"} className={styles.circleBtn}>닫기</Link>
           </>
         ) : showSave ? (
           <>
             <button className={`${styles.circleBtn} ${styles.primary}`} onClick={saveHandler}>저장</button>
-            <button className={styles.circleBtn}>
-              <Link to={"/"} style={{ color: "inherit", textDecoration: "none" }}>닫기</Link>
-            </button>
+            <Link to={"/"} className={styles.circleBtn}>닫기</Link>
           </>
         ) : (
           settingsButton

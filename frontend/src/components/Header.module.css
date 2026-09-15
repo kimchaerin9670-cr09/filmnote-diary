@@ -29,6 +29,8 @@
   padding: 6px 18px;
   font-family: var(--font-kr-body);
   font-size: 16px;
+  text-decoration: none; /* 추가 */
+  display: inline-block; /* 추가 */
 }
 
 .circleBtn.primary {
