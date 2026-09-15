@@ -154,6 +154,59 @@ def get_userinfo():
     return jsonify({"success": True, "nickname": user.nickname, "email": user.email, "profile_photo": user.profile_photo})
 
 
+# 아이디 찾기(닉네임과 이메일을 이용)
+@app.route("/api/find-id", methods=["POST"])
+def find_id():
+    data = request.get_json()
+    nickname = data.get("nickname")
+    email = data.get("email")
+
+    user = User.query.filter_by(nickname=nickname, email=email).first()
+
+    if not user:
+        return jsonify({"success": False, "message": "일치하는 회원 정보가 없습니다."}), 404
+
+    # 아이디 마스킹 (앞 2글자만 보여주고 나머지는 *)
+    user_id = user.user_id
+    masked = user_id[:2] + "*" * (len(user_id) - 2) if len(user_id) > 2 else user_id
+
+    return jsonify({"success": True, "userId": masked})
+
+
+# 비밀번호 재설정 전 본인 확인
+@app.route("/api/verify-user", methods=["POST"])
+def verify_user():
+    data = request.get_json()
+    user_id = data.get("userId")
+    email = data.get("email")
+
+    user = User.query.filter_by(user_id=user_id, email=email).first()
+
+    if not user:
+        return jsonify({"success": False, "message": "일치하는 회원 정보가 없습니다."}), 404
+
+    return jsonify({"success": True})
+
+
+# 비밀번호 재설정
+@app.route("/api/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    user_id = data.get("userId")
+    email = data.get("email")
+    new_password = data.get("newPassword")
+
+    user = User.query.filter_by(user_id=user_id, email=email).first()
+
+    if not user:
+        return jsonify({"success": False, "message": "일치하는 회원 정보가 없습니다."}), 404
+
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "비밀번호가 변경되었습니다."})
+
+
 # 전체 일기 정보 가져오기
 @app.route("/api/diaryinfo", methods = ["GET"])
 @jwt_required()
@@ -247,7 +300,6 @@ def write_diary():
         os.makedirs(upload_folder)
 
     for file in files:
-
         # filename = secure_filename(file.filename)
         ext = os.path.splitext(file.filename)[1]  # 예: .jpg, .png
         millis = int(time.time() * 1000)  # 초 대신 밀리초
