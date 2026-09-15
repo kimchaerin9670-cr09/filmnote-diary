@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "./DiaryReadPage.module.css";
+import { getDiaries } from "../utils/storage";
 
 const WEATHER_EMOJI = {
   "맑음": "☀️",
@@ -21,12 +22,19 @@ export default function DiaryReadPage() {
 
   useEffect(() => {
     const fetchDiary = async () => {
+      const token = sessionStorage.getItem("userToken");
+
+      if (!token) {
+        const diaries = getDiaries();
+        const found = diaries.find((d) => String(d.id) === id);
+        setDiary(found ? { ...found, photo_paths: [] } : null);
+        return;
+      }
+
       try {
-        const token = sessionStorage.getItem("userToken");
         const res = await axios.get(`/api/diary/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         setDiary(res.data);
         console.log(res.data);
       } catch (e) {

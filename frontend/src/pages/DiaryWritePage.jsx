@@ -37,6 +37,23 @@ export default function DiaryWritePage() {
     // 무한 렌더링/상태 업데이트 오류로 useCallback 추가
     async (e) => {
       if (e && e.preventDefault) e.preventDefault();
+      const token = sessionStorage.getItem("userToken");
+
+      // 익명 사용자는 로컬스토리지에 저장
+      if (!token) {
+        const newDiary = {
+          id: Date.now(),
+          title: title || "제목 없음",
+          content,
+          created_at: dateStr,
+          weather,
+        };
+        saveDiary(newDiary);
+        alert("일기 등록 성공!");
+        navigate("/");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
@@ -47,7 +64,6 @@ export default function DiaryWritePage() {
       });
 
       try {
-        const token = sessionStorage.getItem("userToken");
         const res = await axios.post("/api/diary/write", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -186,53 +202,57 @@ export default function DiaryWritePage() {
           )}
         </div>
 
-        <div className={styles.photoGrid}>
-          {selectedFiles.map((file, index) => (
-            <div key={index} className={styles.photoItem}>
-              <img
-                className={styles.photoImg}
-                src={previewURLs[index]}
-                alt={`preview-${index}`}
-              />
+        {sessionStorage.getItem("userToken") ? (
+          <div className={styles.photoGrid}>
+            {selectedFiles.map((file, index) => (
+              <div key={index} className={styles.photoItem}>
+                <img
+                  className={styles.photoImg}
+                  src={previewURLs[index]}
+                  alt={`preview-${index}`}
+                />
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  onClick={() => removePhoto(index)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            {selectedFiles.length === 0 ? (
               <button
                 type="button"
-                className={styles.removeBtn}
-                onClick={() => removePhoto(index)}
+                className={styles.addPhotoBtnLarge}
+                onClick={handlePlusClick}
               >
-                ✕
+                <span className={styles.plusIconLarge}>+</span>
+                사진을 추가해주세요
               </button>
-            </div>
-          ))}
+            ) : selectedFiles.length < 5 ? (
+              <button
+                type="button"
+                className={styles.addPhotoBtn}
+                onClick={handlePlusClick}
+              >
+                <span className={styles.plusIcon}>+</span>
+                사진 추가
+              </button>
+            ) : null}
 
-          {selectedFiles.length === 0 ? (
-            <button
-              type="button"
-              className={styles.addPhotoBtnLarge}
-              onClick={handlePlusClick}
-            >
-              <span className={styles.plusIconLarge}>+</span>
-              사진을 추가해주세요
-            </button>
-          ) : selectedFiles.length < 5 ? (
-            <button
-              type="button"
-              className={styles.addPhotoBtn}
-              onClick={handlePlusClick}
-            >
-              <span className={styles.plusIcon}>+</span>
-              사진 추가
-            </button>
-          ) : null}
-
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleChange}
-            ref={fileInputRef} // ref로 연결
-            style={{ display: "none" }}
-          />
-        </div>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleChange}
+              ref={fileInputRef} // ref로 연결
+              style={{ display: "none" }}
+            />
+          </div>
+        ) : (
+          <p className={styles.emptyText}>익명 사용자는 사진 첨부를 지원하지 않아요</p>
+        )}
       </div>
 
       <div className={styles.contentSide}>

@@ -17,6 +17,7 @@ const WEATHER_COLOR = {
 
 export default function DiaryListPage() {
   const [nickname, setNickname] = useState("");
+  const hasToken = !!sessionStorage.getItem("userToken");
   const [email, setEmail] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
   const profileInputRef = useRef(null);
@@ -111,7 +112,11 @@ export default function DiaryListPage() {
     <div className={styles.page}>
       <aside className={styles.sidebar}>
         <div className={styles.photoCard}>
-          <div className={styles.photoBox} onClick={handleProfilePhotoClick} style={{ cursor: "pointer" }}>
+          <div
+            className={styles.photoBox}
+            onClick={hasToken ? handleProfilePhotoClick : undefined}
+            style={{ cursor: hasToken ? "pointer" : "default" }}
+          >
             {profilePhoto ? (
               <img
                 src={`http://localhost:5000${profilePhoto}`}
@@ -121,13 +126,15 @@ export default function DiaryListPage() {
             ) : (
               "원하는 사진 첨부"
             )}
-            <input
-              type="file"
-              accept="image/*"
-              ref={profileInputRef}
-              onChange={handleProfilePhotoChange}
-              style={{ display: "none" }}
-            />
+            {hasToken && (
+              <input
+                type="file"
+                accept="image/*"
+                ref={profileInputRef}
+                onChange={handleProfilePhotoChange}
+                style={{ display: "none" }}
+              />
+            )}
           </div>
           <div className={styles.stamp}>
             <p className={styles.stampText}>' 필름노트 '</p>
