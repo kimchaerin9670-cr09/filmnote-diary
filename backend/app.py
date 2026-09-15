@@ -42,6 +42,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     nickname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    profile_photo = db.Column(db.String(255), nullable=True)
 
     diaries = db.relationship('Diary', backref='user', lazy=True)
 
@@ -94,6 +95,36 @@ def check_id():
     
     return jsonify({"available": True})
 
+
+# 프로필 사진 저장하기
+@app.route("/api/profile/photo", methods=["POST"])
+@jwt_required()
+def upload_profile_photo():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first()
+
+    if not user:
+        return jsonify({"success": False, "message": "유저를 찾을 수 없습니다."}), 404
+
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"success": False, "message": "파일이 없습니다."}), 400
+
+    upload_folder = app.config['UPLOAD_FOLDER']
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    ext = os.path.splitext(file.filename)[1]
+    millis = int(time.time() * 1000)
+    new_filename = f"profile_{user.id}_{millis}{ext}"
+    file.save(os.path.join(upload_folder, new_filename))
+
+    user.profile_photo = f"/uploads/{new_filename}"
+    db.session.commit()
+
+    return jsonify({"success": True, "profile_photo": user.profile_photo})
+
+
 # id와 password가 맞는지 확인 후 맞으면 토큰 발급
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -108,7 +139,8 @@ def login():
         return jsonify({"success": True, "token": access_token})
     else:
         return jsonify({"success": False, "message": "로그인 실패"}), 401
-    
+
+
 # 사용자 닉네임 출력을 위해 사용자 정보 가져오기
 @app.route("/api/userinfo", methods=["GET"])
 @jwt_required() # 토큰 없으면 아예 API를 막음
@@ -119,7 +151,8 @@ def get_userinfo():
     if not user:
         return jsonify({"success" : False,  "message": "유저를 찾을 수 없습니다"}), 404
     
-    return jsonify({"success": True, "nickname": user.nickname, "email": user.email})
+    return jsonify({"success": True, "nickname": user.nickname, "email": user.email, "profile_photo": user.profile_photo})
+
 
 # 전체 일기 정보 가져오기
 @app.route("/api/diaryinfo", methods = ["GET"])
@@ -151,6 +184,7 @@ def get_diarylist():
     else:
         return jsonify({"success": False, "message": "일기가 없습니다."}), 404
 
+
 # 해당 id의 일기 정보 가져오기
 @app.route("/api/diary/<int:diary_id>", methods=["GET"])
 @jwt_required()
@@ -177,6 +211,7 @@ def get_diary(diary_id):
         })
     else:
         return jsonify({"success": False, "message": "일기를 찾을 수 없습니다."}), 404
+
 
 # 일기 작성 후 저장
 @app.route("/api/diary/write", methods=["POST"])
@@ -235,6 +270,7 @@ def write_diary():
 
     return jsonify({"success": True, "message": "일기 등록 성공"})
 
+
 # 일기 수정 후 저장
 @app.route("/api/diary/update/<int:diary_id>", methods=["POST"])
 @jwt_required()
@@ -249,7 +285,6 @@ def update_diary(diary_id):
     if not diary:
         return jsonify({"success": False, "message": "일기를 찾을 수 없습니다"}), 404
 
-    
     title = request.form.get("title")
     content = request.form.get("content")
     files = request.files.getlist("file")
@@ -257,12 +292,10 @@ def update_diary(diary_id):
     clear_photos = request.form.get("clearPhotos") == "true"
     photo_paths = []
 
-
     # 남겨진 기존 사진 경로 받기
     existing_paths = request.form.get("existingPaths")
     existing_paths = json.loads(existing_paths) if existing_paths else []
     
-
     # DB에 저장되어 있던 이전 사진 경로 불러오기
     old_paths = json.loads(diary.photo_paths) if diary.photo_paths else []
     # 삭제할 사진(old_paths에 있었지만 existing_paths에는 없는 것 → 삭제된 것)
@@ -278,7 +311,7 @@ def update_diary(diary_id):
         abs_path = os.path.join(upload_folder, os.path.basename(rel_path))
         if os.path.exists(abs_path):
             os.remove(abs_path)
-
+    
     # 새로 업로드된 파일 저장
     new_paths = []
     if files:

@@ -1,6 +1,6 @@
 // DiaryListPage.jsx(일기장 목록 페이지 - 홈 페이지)
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { getDiaries } from "../utils/storage";
@@ -18,6 +18,8 @@ const WEATHER_COLOR = {
 export default function DiaryListPage() {
   const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const profileInputRef = useRef(null);
   const navigate = useNavigate();
   const [diaries, setDiaries] = useState([]);
 
@@ -32,6 +34,7 @@ export default function DiaryListPage() {
 
         setNickname(res.data.nickname);
         setEmail(res.data.email);
+        setProfilePhoto(res.data.profile_photo);
       } catch (e) {
         // 로그인 사용자가 아니거나(익명 사용자거나), 서버 요청이 실패하면
         const anonymousNickname = localStorage.getItem("anonymousNickname");
@@ -76,11 +79,56 @@ export default function DiaryListPage() {
     navigate("/diary/write");
   };
 
+  const handleProfilePhotoClick = () => {
+    profileInputRef.current.click();
+  };
+
+  const handleProfilePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const token = sessionStorage.getItem("userToken");
+      const res = await axios.post("/api/profile/photo", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setProfilePhoto(res.data.profile_photo);
+    } catch (e) {
+      console.error(e);
+      alert("프로필 사진 업로드 실패");
+    }
+
+    e.target.value = "";
+  };
+
   return (
     <div className={styles.page}>
       <aside className={styles.sidebar}>
         <div className={styles.photoCard}>
-          <div className={styles.photoBox}>원하는 사진 첨부</div>
+          <div className={styles.photoBox} onClick={handleProfilePhotoClick} style={{ cursor: "pointer" }}>
+            {profilePhoto ? (
+              <img
+                src={`http://localhost:5000${profilePhoto}`}
+                alt="프로필 사진"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              "원하는 사진 첨부"
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              ref={profileInputRef}
+              onChange={handleProfilePhotoChange}
+              style={{ display: "none" }}
+            />
+          </div>
           <div className={styles.stamp}>
             <p className={styles.stampText}>' 필름노트 '</p>
           </div>
