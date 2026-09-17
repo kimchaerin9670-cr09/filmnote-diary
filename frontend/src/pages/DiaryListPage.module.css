@@ -1,6 +1,7 @@
 .page {
   display: flex;
-  min-height: calc(100vh - 65px);
+  height: calc(100vh - 65px); /* min-height → height */
+  overflow: hidden; /* 혹시 모를 전체 스크롤 방지 */
   background: var(--color-bg);
 }
 

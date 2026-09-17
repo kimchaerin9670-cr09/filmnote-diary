@@ -73,7 +73,7 @@ export default function DiaryUpdatePage() {
       }
 
       const formData = new FormData();
-      formData.append("title", title);
+      formData.append("title", title || "제목 없음");
       formData.append("content", content);
 
       // 새로 업로드한 사진만 FormData에 넣기

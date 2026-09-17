@@ -16,7 +16,6 @@ export default function Header() {
   // 로그인 상태 판단 (실제 로그인 토큰 또는 익명 세션)
   const hasToken = !!sessionStorage.getItem("userToken");
   const hasAnonymous = !!localStorage.getItem("anonymousNickname");
-  const isLoggedIn = hasToken || hasAnonymous;
 
   const showSave =
     location.pathname.startsWith("/diary/write") ||
@@ -45,10 +44,13 @@ export default function Header() {
     }
   };
 
-  // 로그아웃: 실제 로그인 사용자는 토큰 제거, 익명 사용자는 데이터 그대로 두고 화면만 이동
+  // 로그아웃: 실제 로그인 사용자는 토큰 제거, 익명 사용자는 로컬 데이터(닉네임+일기) 전부 삭제
   const handleLogout = () => {
     if (hasToken) {
       sessionStorage.removeItem("userToken");
+    } else if (hasAnonymous) {
+      localStorage.removeItem("anonymousNickname");
+      localStorage.removeItem("anonymousDiaries"); // 익명 일기 데이터도 같이 삭제
     }
     setShowSettings(false);
     navigate("/login");
@@ -64,8 +66,10 @@ export default function Header() {
       </button>
       {showSettings && (
         <div className={styles.settingsMenu}>
-          {isLoggedIn ? (
+          {hasToken ? (
             <button onClick={handleLogout}>로그아웃</button>
+          ) : hasAnonymous ? (
+            <button onClick={handleLogout}>익명 삭제</button>
           ) : (
             <span>로그인이 필요합니다</span>
           )}
@@ -81,7 +85,10 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <Link to="/" className={styles.logo}>📸 필름노트</Link>
+      <Link to="/" className={styles.logo}>
+        <span className={styles.logoIcon}>📸</span>
+        <span className={styles.logoText}>필름노트</span>
+      </Link>
       <div className={styles.buttonGroup}>
         {location.pathname === "/" ? (
           <>
@@ -92,7 +99,7 @@ export default function Header() {
           </>
         ) : location.pathname.startsWith("/diary/read") ? (
           <>
-            <button className={styles.circleBtn} onClick={handleUpdate}>수정</button>
+            <button className={`${styles.circleBtn} ${styles.primary}`} onClick={handleUpdate}>수정</button>
             <button className={styles.circleBtn} onClick={handleDelete}>삭제</button>
             <Link to={"/"} className={styles.circleBtn}>닫기</Link>
           </>

@@ -55,7 +55,7 @@ export default function DiaryWritePage() {
       }
 
       const formData = new FormData();
-      formData.append("title", title);
+      formData.append("title", title || "제목 없음");
       formData.append("content", content);
       formData.append("created_at", dateStr); // yyyy-mm-dd
       formData.append("weather", weather);
