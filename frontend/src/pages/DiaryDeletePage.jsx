@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { deleteDiary as deleteDiaryLocal } from "../utils/storage";
 
 export default function DiaryDeletePage() {
   const { id } = useParams(); // URL에서 diary id 가져오기
@@ -19,8 +20,17 @@ export default function DiaryDeletePage() {
         return;
       }
 
+      const token = sessionStorage.getItem("userToken");
+
+      // 익명 사용자는 로컬스토리지에서 삭제
+      if (!token) {
+        deleteDiaryLocal(Number(id));
+        alert("삭제되었습니다.");
+        navigate("/");
+        return;
+      }
+
       try {
-        const token = sessionStorage.getItem("userToken");
         await axios.delete(`/api/diary/delete/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });

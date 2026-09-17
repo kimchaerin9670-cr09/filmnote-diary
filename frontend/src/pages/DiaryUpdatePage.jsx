@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSaveHandler } from "../contexts/SaveContext";
+import { getDiaries, updateDiary } from "../utils/storage";
 import styles from "./DiaryUpdatePage.module.css";
 
 const WEATHER_EMOJI = {
@@ -26,14 +27,24 @@ export default function DiaryUpdatePage() {
   const [selectedFiles, setSelectedFiles] = useState([]); // string | File 섞임
   const navigate = useNavigate();
   const [previewURLs, setPreviewURLs] = useState([]); // File 객체에 대응하는 미리보기 URL 배열
+  const hasToken = !!sessionStorage.getItem("userToken");
 
   console.log(id);
 
   useEffect(() => {
     // 컴포넌트가 마운트되었을 때 기존 일기 불러오기
     const fetchDiary = async () => {
+      const token = sessionStorage.getItem("userToken");
+
+      // 익명 사용자는 로컬스토리지에서 불러오기
+      if (!token) {
+        const diaries = getDiaries();
+        const found = diaries.find((d) => String(d.id) === id);
+        setDiary(found ? { ...found, photo_paths: [] } : null);
+        return;
+      }
+
       try {
-        const token = sessionStorage.getItem("userToken");
         const res = await axios.get(`/api/diary/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -51,6 +62,15 @@ export default function DiaryUpdatePage() {
   const handleSubmit = useCallback(
     async (e) => {
       if (e && e.preventDefault) e.preventDefault();
+      const token = sessionStorage.getItem("userToken");
+
+      // 익명 사용자는 로컬스토리지에 저장
+      if (!token) {
+        updateDiary({ ...diary, title, content });
+        alert("일기 수정 완료!");
+        navigate("/");
+        return;
+      }
 
       const formData = new FormData();
       formData.append("title", title);
@@ -75,7 +95,6 @@ export default function DiaryUpdatePage() {
       }
 
       try {
-        const token = sessionStorage.getItem("userToken");
         const res = await axios.post(`/api/diary/update/${id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -93,7 +112,7 @@ export default function DiaryUpdatePage() {
         alert("수정 중 오류 발생");
       }
     },
-    [title, content, selectedFiles]
+    [title, content, selectedFiles, diary]
   );
 
   useEffect(() => {
@@ -167,63 +186,67 @@ export default function DiaryUpdatePage() {
           )}
         </div>
 
-        <div className={styles.photoGrid}>
-          {selectedFiles.map((file, index) => (
-            <div key={index} className={styles.photoItem}>
-              <img
-                className={styles.photoImg}
-                src={
-                  typeof file === "string"
-                    ? `http://localhost:5000/${file}`
-                    : previewURLs[
-                    index -
-                    selectedFiles.filter(
-                      (f) =>
-                        typeof f === "string" &&
-                        selectedFiles.indexOf(f) < index
-                    ).length
-                    ]
-                }
-                alt={`preview-${index}`}
-              />
+        {hasToken ? (
+          <div className={styles.photoGrid}>
+            {selectedFiles.map((file, index) => (
+              <div key={index} className={styles.photoItem}>
+                <img
+                  className={styles.photoImg}
+                  src={
+                    typeof file === "string"
+                      ? `http://localhost:5000/${file}`
+                      : previewURLs[
+                      index -
+                      selectedFiles.filter(
+                        (f) =>
+                          typeof f === "string" &&
+                          selectedFiles.indexOf(f) < index
+                      ).length
+                      ]
+                  }
+                  alt={`preview-${index}`}
+                />
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  onClick={() => removePhoto(index)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            {selectedFiles.length === 0 ? (
               <button
                 type="button"
-                className={styles.removeBtn}
-                onClick={() => removePhoto(index)}
+                className={styles.addPhotoBtnLarge}
+                onClick={handlePlusClick}
               >
-                ✕
+                <span className={styles.plusIconLarge}>+</span>
+                사진을 추가해주세요
               </button>
-            </div>
-          ))}
-
-          {selectedFiles.length === 0 ? (
-            <button
-              type="button"
-              className={styles.addPhotoBtnLarge}
-              onClick={handlePlusClick}
-            >
-              <span className={styles.plusIconLarge}>+</span>
-              사진을 추가해주세요
-            </button>
-          ) : selectedFiles.length < 5 ? (
-            <button
-              type="button"
-              className={styles.addPhotoBtn}
-              onClick={handlePlusClick}
-            >
-              <span className={styles.plusIcon}>+</span>
-              사진 추가
-            </button>
-          ) : null}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleChange}
-            ref={fileInputRef} // ref로 연결
-            style={{ display: "none" }}
-          />
-        </div>
+            ) : selectedFiles.length < 5 ? (
+              <button
+                type="button"
+                className={styles.addPhotoBtn}
+                onClick={handlePlusClick}
+              >
+                <span className={styles.plusIcon}>+</span>
+                사진 추가
+              </button>
+            ) : null}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleChange}
+              ref={fileInputRef} // ref로 연결
+              style={{ display: "none" }}
+            />
+          </div>
+        ) : (
+          <p className={styles.emptyText}>익명 사용자는 사진 첨부를 지원하지 않아요</p>
+        )}
       </div>
 
       <div className={styles.contentSide}>

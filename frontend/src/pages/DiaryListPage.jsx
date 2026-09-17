@@ -15,6 +15,14 @@ const WEATHER_COLOR = {
   "눈": { bg: "#E8FFF9", text: "#00A082", emoji: "❄️" },
 };
 
+const sortByDateDesc = (list) =>
+  [...list].sort((a, b) => {
+    if (a.created_at !== b.created_at) {
+      return a.created_at < b.created_at ? 1 : -1;
+    }
+    return b.id - a.id; // 같은 날짜면 최근 작성 순
+  });
+
 export default function DiaryListPage() {
   const [nickname, setNickname] = useState("");
   const hasToken = !!sessionStorage.getItem("userToken");
@@ -53,7 +61,7 @@ export default function DiaryListPage() {
       if (!token) {
         const anonymousDiaries = getDiaries();
         if (anonymousDiaries) {
-          setDiaries(anonymousDiaries);
+          setDiaries(sortByDateDesc(anonymousDiaries));
         } else {
           setDiaries(null);
         }
@@ -64,7 +72,7 @@ export default function DiaryListPage() {
         const res = await axios.get("/api/diaryinfo", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setDiaries(res.data.contents);
+        setDiaries(sortByDateDesc(res.data.contents));
         console.log(res.data.contents);
       } catch (e) {
         console.error(e);
